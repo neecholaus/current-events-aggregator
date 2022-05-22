@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 )
 
 type Extraction struct {
 	SourceName string   `json:"sourceName"`
 	Headlines  []string `json:"headlines"`
+	CreatedAt  time.Time
 	LastError  string
 }
 

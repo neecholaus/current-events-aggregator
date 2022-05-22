@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -29,7 +30,10 @@ func main() {
 			return
 		}
 
-		newsPull := Extraction{SourceName: sourceName}
+		newsPull := Extraction{
+			SourceName: sourceName,
+			CreatedAt:  time.Now(),
+		}
 
 		newsPull.ExtractHeadlinesFromHTML(string(body))
 
@@ -40,7 +44,11 @@ func main() {
 		}
 
 		for i := 0; i < len(newsPull.Headlines); i++ {
-			fmt.Println(fmt.Sprintf("%s\t%s", newsPull.SourceName, newsPull.Headlines[i]))
+			fmt.Println(fmt.Sprintf("%s\t%s\t%s",
+				newsPull.CreatedAt.UTC().Format(time.UnixDate),
+				newsPull.SourceName,
+				newsPull.Headlines[i]),
+			)
 		}
 	}
 }
