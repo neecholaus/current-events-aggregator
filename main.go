@@ -10,6 +10,7 @@ func main() {
 	pulls := map[string]string{
 		"reuters":        "https://reuters.com",
 		"associatepress": "https://apnews.com",
+		"theeconomist":   "https://www.economist.com",
 	}
 
 	for sourceName, sourceHost := range pulls {

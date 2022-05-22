@@ -13,32 +13,48 @@ type Extraction struct {
 }
 
 func (extraction *Extraction) ExtractHeadlinesFromHTML(html string) error {
+	// Get the regex string for the appropriate source.
 	regexString, err := extraction.getRegexForSource()
 	if err != nil {
 		extraction.LastError = err.Error()
 		return err
 	}
 
-	regExp, err := regexp.Compile(regexString)
+	// Make regex object
+	regex, err := regexp.Compile(regexString)
 	if err != nil {
 		extraction.LastError = err.Error()
 		return err
 	}
 
-	x := regExp.FindAllStringSubmatch(html, -1)
+	matches := regex.FindAllStringSubmatch(html, -1)
 
-	for i := 0; i < len(x); i++ {
-		extraction.Headlines = append(extraction.Headlines, x[i][1])
+	// Determine index of headline regex grouping
+	indexOfHealineGrouping := 0
+	for i, name := range regex.SubexpNames() {
+		if name == "headline" {
+			indexOfHealineGrouping = i
+		}
+	}
+
+	// Assign headlines to self
+	for i := 0; i < len(matches); i++ {
+		if matches[i][indexOfHealineGrouping] != "" {
+			extraction.Headlines = append(extraction.Headlines, matches[i][indexOfHealineGrouping])
+		}
 	}
 
 	return nil
 }
 
 func (extraction Extraction) getRegexForSource() (string, error) {
-	if extraction.SourceName == "reuters" {
-		return `media-story-card__heading__eqhp9"><span>([^<]*)`, nil
-	} else if extraction.SourceName == "associatepress" {
-		return `-cardHeading">([^<]*)`, nil
+	switch source := extraction.SourceName; source {
+	case "reuters":
+		return `media-story-card__heading__eqhp9"><span>(?P<headline>[^<]*)`, nil
+	case "associatepress":
+		return `-cardHeading">(?P<headline>[^<]*)`, nil
+	case "theeconomist":
+		return `data-analytics="(topical_content|top_stories)(_\d{0,2})?:headline_\d{1,2}">(?P<headline>[^<]*)`, nil
 	}
 
 	return "", errors.New(
