@@ -42,7 +42,17 @@ func (extraction *Extraction) ExtractHeadlinesFromHTML(html string) error {
 	// Assign headlines to self
 	for i := 0; i < len(matches); i++ {
 		if matches[i][indexOfHealineGrouping] != "" {
-			extraction.Headlines = append(extraction.Headlines, matches[i][indexOfHealineGrouping])
+			// Check if already have headline
+			headlineAlreadyExtracted := false
+			for _, headline := range extraction.Headlines {
+				if matches[i][indexOfHealineGrouping] == headline {
+					headlineAlreadyExtracted = true
+				}
+			}
+
+			if !headlineAlreadyExtracted {
+				extraction.Headlines = append(extraction.Headlines, matches[i][indexOfHealineGrouping])
+			}
 		}
 	}
 
